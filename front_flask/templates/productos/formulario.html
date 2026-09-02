@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{# Una sola plantilla sirve para crear y para editar. Lo que las distingue es
+   si llegó un producto con código: si llegó, se está editando. #}
+{% set editando = producto and producto.codigo %}
+
+{% block titulo %}{{ 'Editar' if editando else 'Nuevo' }} producto{% endblock %}
+
+{% block contenido %}
+
+  <div class="encabezado">
+    <h1>{{ 'Editar producto' if editando else 'Nuevo producto' }}</h1>
+    <a class="boton" href="{{ url_for('listar') }}">Volver</a>
+  </div>
+
+  <form method="post"
+        action="{{ url_for('editar', codigo=producto.codigo) if editando else url_for('crear') }}">
+
+    <label>
+      Código
+      {# Al editar, el código identifica la fila y viaja en la URL: no se
+         cambia desde el formulario. #}
+      <input name="codigo" maxlength="20"
+             value="{{ producto.codigo if producto else '' }}"
+             {{ 'readonly' if editando else 'required' }}>
+    </label>
+
+    <label>
+      Nombre
+      <input name="nombre" value="{{ producto.nombre if producto else '' }}">
+    </label>
+
+    <label>
+      Stock
+      {# type="text" a propósito: si el navegador rechazara "abc" antes de
+         enviarlo, nunca se vería el 422 de la API — y ver ese 422 es
+         justamente lo que enseña dónde está la frontera de validación. #}
+      <input name="stock" value="{{ producto.stock if producto else '' }}">
+    </label>
+
+    <label>
+      Valor unitario
+      <input name="valorunitario" value="{{ producto.valorunitario if producto else '' }}">
+    </label>
+
+    {% if editando %}
+
+      <div class="pareja">
+        <button class="boton primario" type="submit" name="verbo" value="put">
+          Reemplazar (PUT)
+        </button>
+        <button class="boton" type="submit" name="verbo" value="patch">
+          Actualizar lo diligenciado (PATCH)
+        </button>
+      </div>
+
+      <p class="nota">
+        <strong>Los dos botones envían este mismo formulario.</strong>
+        <br>
+        <em>Reemplazar (PUT)</em> manda los tres campos aunque estén vacíos, y
+        por eso un campo en blanco responde <strong>422</strong>: reemplazar es
+        poner todo de nuevo.
+        <br>
+        <em>Actualizar (PATCH)</em> manda solo lo que usted diligenció, así que
+        el mismo formulario a medio llenar responde <strong>200</strong>.
+        <br>
+        Bórrele el nombre y oprima cada botón: la diferencia se ve de una.
+      </p>
+
+    {% else %}
+
+      <button class="boton primario" type="submit">Crear</button>
+
+      <p class="nota">
+        Los cuatro campos son obligatorios. Si deja uno vacío &mdash;o escribe
+        letras en el stock&mdash; la API responde <strong>422</strong> y el
+        aviso aparece arriba: <strong>este front no valida nada por su
+        cuenta</strong>, para que la regla tenga un solo dueño.
+      </p>
+
+    {% endif %}
+
+  </form>
+
+{% endblock %}

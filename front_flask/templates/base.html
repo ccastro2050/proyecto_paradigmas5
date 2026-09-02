@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Facturas{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+
+  <header>
+    <div class="contenedor barra">
+      <a class="marca" href="{{ url_for('listar') }}">Facturas</a>
+      <span class="version">front v5 &middot; consume la API por HTTP</span>
+    </div>
+  </header>
+
+  <main class="contenedor">
+
+    {# Los avisos que app.py dejó con flash(). Un párrafo por mensaje: cuando
+       la API devuelve tres errores de validación, se ven los tres. #}
+    {% with avisos = get_flashed_messages(with_categories=true) %}
+      {% if avisos %}
+        {% for categoria, mensaje in avisos %}
+          <p class="aviso {{ categoria }}">{{ mensaje }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block contenido %}{% endblock %}
+
+  </main>
+
+  <footer class="contenedor">
+    <p>
+      Este front <strong>no toca la base de datos</strong>: todo lo pide a la
+      API. Si la API está caída, aquí no hay datos &mdash; y esa es la prueba
+      de que la separación es real.
+    </p>
+  </footer>
+
+</body>
+</html>

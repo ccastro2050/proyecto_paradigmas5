@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block titulo %}Productos{% endblock %}
+
+{% block contenido %}
+
+  <div class="encabezado">
+    <h1>Productos</h1>
+    <a class="boton primario" href="{{ url_for('crear') }}">Nuevo producto</a>
+  </div>
+
+  {% if productos %}
+
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Nombre</th>
+          <th class="numero">Stock</th>
+          <th class="numero">Valor unitario</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for producto in productos %}
+          <tr>
+            <td><code>{{ producto.codigo }}</code></td>
+            <td>{{ producto.nombre }}</td>
+            <td class="numero">{{ producto.stock }}</td>
+            <td class="numero">{{ producto.valorunitario }}</td>
+            <td class="acciones">
+              <a class="boton" href="{{ url_for('editar', codigo=producto.codigo) }}">Editar</a>
+              {# Eliminar va por POST, no por enlace: un GET que borra lo puede
+                 disparar el navegador solo al precargar la página. #}
+              <form method="post"
+                    action="{{ url_for('eliminar', codigo=producto.codigo) }}"
+                    onsubmit="return confirm('¿Eliminar el producto {{ producto.codigo }}?')">
+                <button class="boton peligro" type="submit">Eliminar</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <p class="nota">{{ productos|length }} producto(s).</p>
+
+  {% else %}
+
+    {# La API respondió 204: la tabla está vacía. No es un error, y por eso
+       este mensaje es gris y no rojo. #}
+    <p class="vacio">
+      No hay productos todavía. La API respondió <strong>204</strong>, que
+      significa &laquo;funcionó, y no hay nada que devolver&raquo;.
+    </p>
+
+  {% endif %}
+
+{% endblock %}
